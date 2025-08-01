@@ -12,10 +12,19 @@
     "start": "cd backend && npm start",
     "build:all": "npm run build && cd backend && npm run build"
   },
-  "keywords": ["linode", "server", "management", "react", "nodejs"],
+  "keywords": [
+    "linode",
+    "server",
+    "management",
+    "react",
+    "nodejs"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "axios": "^1.11.0"
   }
-} 
+}

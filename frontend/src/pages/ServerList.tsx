@@ -1,10 +1,12 @@
-import { useQuery } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { Link } from 'react-router-dom';
 import { Server, Plus, Play, Square, RotateCcw, Trash2 } from 'lucide-react';
 import { ApiService } from '../services/api';
 import { LinodeInstance } from '../types/linode';
 
 const ServerList = () => {
+  const queryClient = useQueryClient();
+  
   const { data: servers, isLoading, error, refetch } = useQuery<LinodeInstance[]>(
     'servers',
     ApiService.getServers,
@@ -12,6 +14,87 @@ const ServerList = () => {
       refetchInterval: 30000, // 每30秒刷新一次
     }
   );
+
+  // 删除服务器
+  const deleteMutation = useMutation(
+    (serverId: number) => ApiService.deleteServer(serverId),
+    {
+      onSuccess: () => {
+        // 删除成功后刷新服务器列表
+        queryClient.invalidateQueries('servers');
+      },
+      onError: (error) => {
+        console.error('删除服务器失败:', error);
+        alert('删除服务器失败，请重试');
+      },
+    }
+  );
+
+  // 启动服务器
+  const bootMutation = useMutation(
+    (serverId: number) => ApiService.bootServer(serverId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('servers');
+      },
+      onError: (error) => {
+        console.error('启动服务器失败:', error);
+        alert('启动服务器失败，请重试');
+      },
+    }
+  );
+
+  // 关闭服务器
+  const shutdownMutation = useMutation(
+    (serverId: number) => ApiService.shutdownServer(serverId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('servers');
+      },
+      onError: (error) => {
+        console.error('关闭服务器失败:', error);
+        alert('关闭服务器失败，请重试');
+      },
+    }
+  );
+
+  // 重启服务器
+  const rebootMutation = useMutation(
+    (serverId: number) => ApiService.rebootServer(serverId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('servers');
+      },
+      onError: (error) => {
+        console.error('重启服务器失败:', error);
+        alert('重启服务器失败，请重试');
+      },
+    }
+  );
+
+  const handleDeleteServer = (serverId: number, serverLabel: string) => {
+    if (window.confirm(`确定要删除服务器 "${serverLabel}" 吗？此操作不可撤销。`)) {
+      deleteMutation.mutate(serverId);
+    }
+  };
+
+  const handleBootServer = (serverId: number, serverLabel: string) => {
+    if (window.confirm(`确定要启动服务器 "${serverLabel}" 吗？`)) {
+      bootMutation.mutate(serverId);
+    }
+  };
+
+  const handleShutdownServer = (serverId: number, serverLabel: string) => {
+    if (window.confirm(`确定要关闭服务器 "${serverLabel}" 吗？`)) {
+      shutdownMutation.mutate(serverId);
+    }
+  };
+
+  const handleRebootServer = (serverId: number, serverLabel: string) => {
+    if (window.confirm(`确定要重启服务器 "${serverLabel}" 吗？`)) {
+      rebootMutation.mutate(serverId);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -124,7 +207,9 @@ const ServerList = () => {
                 <div className="flex space-x-2">
                   {server.status === 'offline' && (
                     <button
-                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      onClick={() => handleBootServer(server.id, server.label)}
+                      disabled={bootMutation.isLoading}
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
                       title="启动服务器"
                     >
                       <Play className="w-4 h-4" />
@@ -133,7 +218,9 @@ const ServerList = () => {
                   
                   {server.status === 'running' && (
                     <button
-                      className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                      onClick={() => handleShutdownServer(server.id, server.label)}
+                      disabled={shutdownMutation.isLoading}
+                      className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors disabled:opacity-50"
                       title="关闭服务器"
                     >
                       <Square className="w-4 h-4" />
@@ -141,14 +228,18 @@ const ServerList = () => {
                   )}
                   
                   <button
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    onClick={() => handleRebootServer(server.id, server.label)}
+                    disabled={rebootMutation.isLoading}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
                     title="重启服务器"
                   >
                     <RotateCcw className="w-4 h-4" />
                   </button>
                   
                   <button
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-auto"
+                    onClick={() => handleDeleteServer(server.id, server.label)}
+                    disabled={deleteMutation.isLoading}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-auto disabled:opacity-50"
                     title="删除服务器"
                   >
                     <Trash2 className="w-4 h-4" />

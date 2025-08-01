@@ -76,7 +76,7 @@ export interface LinodeUser {
 export interface CreateLinodeRequest {
   region: string;
   type: string;
-  image: string;
+  image?: string;
   label: string;
   root_pass?: string;
   authorized_keys?: string[];

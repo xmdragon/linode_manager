@@ -12,7 +12,7 @@ const CreateServer = () => {
     label: '',
     region: '',
     type: '',
-    image: ''
+    image: undefined
   });
 
   // 获取区域列表
@@ -90,11 +90,27 @@ const CreateServer = () => {
     setIsLoading(true);
 
     try {
-      await ApiService.createServer(formData);
+      // 清理数据，只发送有值的字段
+      const cleanData = { ...formData };
+      
+      // 移除空字符串和undefined值
+      Object.keys(cleanData).forEach(key => {
+        const value = cleanData[key as keyof CreateLinodeRequest];
+        if (value === '' || value === undefined || value === null) {
+          delete cleanData[key as keyof CreateLinodeRequest];
+        }
+      });
+
+      // 移除前端验证字段
+      delete cleanData.confirmPassword;
+
+      console.log('提交的数据:', cleanData);
+      await ApiService.createServer(cleanData);
       navigate('/servers');
-    } catch (error) {
+    } catch (error: any) {
       console.error('创建服务器失败:', error);
-      alert('创建服务器失败，请重试');
+      const errorMessage = error.response?.data?.message || error.message || '创建服务器失败，请重试';
+      alert(`创建服务器失败: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -166,11 +182,11 @@ const CreateServer = () => {
                 </option>
               ))}
             </select>
-            {regionsError && (
+            {regionsError ? (
               <p className="mt-1 text-sm text-red-500">
-                加载区域列表失败: {regionsError.message}
+                加载区域列表失败: {regionsError instanceof Error ? regionsError.message : '未知错误'}
               </p>
-            )}
+            ) : null}
             <p className="mt-1 text-sm text-gray-500">
               选择离您最近的数据中心以获得最佳性能
             </p>
@@ -196,11 +212,11 @@ const CreateServer = () => {
                 </option>
               ))}
             </select>
-            {typesError && (
+            {typesError ? (
               <p className="mt-1 text-sm text-red-500">
-                加载实例类型列表失败: {typesError.message}
+                加载实例类型列表失败: {typesError instanceof Error ? typesError.message : '未知错误'}
               </p>
-            )}
+            ) : null}
             <p className="mt-1 text-sm text-gray-500">
               选择适合您需求的实例配置
             </p>
@@ -225,11 +241,11 @@ const CreateServer = () => {
                 </option>
               ))}
             </select>
-            {imagesError && (
+            {imagesError ? (
               <p className="mt-1 text-sm text-red-500">
-                加载镜像列表失败: {imagesError.message}
+                加载镜像列表失败: {imagesError instanceof Error ? imagesError.message : '未知错误'}
               </p>
-            )}
+            ) : null}
             <p className="mt-1 text-sm text-gray-500">
               选择要安装的操作系统，包含 Ubuntu、Debian、CentOS、Rocky Linux、AlmaLinux、Alpine、Fedora、Arch Linux、Gentoo、openSUSE、Void Linux、FreeBSD、NetBSD、OpenBSD 等
             </p>

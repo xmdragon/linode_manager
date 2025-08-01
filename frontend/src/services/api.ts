@@ -22,41 +22,18 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// 请求拦截器 - 添加认证头
+// 请求拦截器 - 添加认证头和日志
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
+    // 添加认证头
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// 响应拦截器 - 处理认证错误
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      // 清除无效的认证信息
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      // 重定向到登录页面
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
-// 请求拦截器
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+    
+    // 添加日志
     console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
+    
     return config;
   },
   (error: AxiosError) => {
@@ -65,13 +42,24 @@ api.interceptors.request.use(
   }
 );
 
-// 响应拦截器
+// 响应拦截器 - 处理认证错误
 api.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
   (error: AxiosError) => {
     console.error('[API] Response error:', error.response?.data || error.message);
+    
+    if (error.response?.status === 401) {
+      // 清除无效的认证信息
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // 使用 React Router 的方式重定向，而不是直接修改 window.location
+      // 这里我们只清除认证信息，让 ProtectedRoute 处理重定向
+      console.log('[API] 认证失败，清除本地存储');
+    }
+    
     return Promise.reject(error);
   }
 );

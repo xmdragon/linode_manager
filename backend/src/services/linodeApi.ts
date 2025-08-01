@@ -107,9 +107,13 @@ export class LinodeApiService {
   async rebootInstance(id: number): Promise<void> {
     try {
       await this.api.post(`/linode/instances/${id}/reboot`);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`重启实例 ${id} 失败:`, error);
-      throw error;
+      if (error.response?.data?.errors) {
+        const errorMessage = error.response.data.errors.map((e: any) => e.reason).join(', ');
+        throw new Error(`重启失败: ${errorMessage}`);
+      }
+      throw new Error(`重启实例 ${id} 失败: ${error.message}`);
     }
   }
 
@@ -119,9 +123,13 @@ export class LinodeApiService {
   async bootInstance(id: number): Promise<void> {
     try {
       await this.api.post(`/linode/instances/${id}/boot`);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`启动实例 ${id} 失败:`, error);
-      throw error;
+      if (error.response?.data?.errors) {
+        const errorMessage = error.response.data.errors.map((e: any) => e.reason).join(', ');
+        throw new Error(`启动失败: ${errorMessage}`);
+      }
+      throw new Error(`启动实例 ${id} 失败: ${error.message}`);
     }
   }
 
@@ -131,9 +139,13 @@ export class LinodeApiService {
   async shutdownInstance(id: number): Promise<void> {
     try {
       await this.api.post(`/linode/instances/${id}/shutdown`);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`关闭实例 ${id} 失败:`, error);
-      throw error;
+      if (error.response?.data?.errors) {
+        const errorMessage = error.response.data.errors.map((e: any) => e.reason).join(', ');
+        throw new Error(`关闭失败: ${errorMessage}`);
+      }
+      throw new Error(`关闭实例 ${id} 失败: ${error.message}`);
     }
   }
 
