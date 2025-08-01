@@ -1,0 +1,21 @@
+{
+  "name": "linode-manager",
+  "version": "1.0.0",
+  "description": "Linode服务器管理面板",
+  "main": "backend/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "start": "cd backend && npm start",
+    "build:all": "npm run build && cd backend && npm run build"
+  },
+  "keywords": ["linode", "server", "management", "react", "nodejs"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 

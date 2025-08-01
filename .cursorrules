@@ -1,0 +1,51 @@
+{
+  "project_type": "web_app",
+  "description": "这是一个使用 Linode API 开发的服务器管理面板，支持实例创建、删除、重启、列出等操作，前端使用 React，后端使用 Node.js + Express。",
+  "language": ["javascript", "typescript", "json"],
+  "frameworks": ["react", "express", "axios", "tailwindcss"],
+  "entry_points": ["backend/server.js", "frontend/src/App.tsx"],
+  "exclude": ["node_modules", "dist", ".git", ".env", "build"],
+  "api_context": {
+    "base_url": "https://api.linode.com/v4",
+    "auth_method": "Bearer Token",
+    "resources": [
+      {
+        "name": "Linode Instances",
+        "endpoints": [
+          { "method": "GET", "path": "/linode/instances" },
+          { "method": "POST", "path": "/linode/instances" },
+          { "method": "DELETE", "path": "/linode/instances/{id}" },
+          { "method": "POST", "path": "/linode/instances/{id}/reboot" }
+        ]
+      }
+    ]
+  },
+  "frontend_context": {
+    "uses_state_management": true,
+    "state_library": "useState/useEffect（内建）",
+    "ui_library": "tailwindcss",
+    "pages": [
+      "Dashboard.tsx",
+      "CreateServer.tsx",
+      "ServerList.tsx",
+      "ServerDetail.tsx"
+    ]
+  },
+  "backend_context": {
+    "auth": "使用 .env 中配置的 Token",
+    "routes": [
+      "/api/servers [GET]",
+      "/api/servers [POST]",
+      "/api/servers/:id [DELETE]",
+      "/api/servers/:id/reboot [POST]"
+    ],
+    "libs": ["express", "axios", "dotenv", "cors"]
+  },
+  "instructions": {
+    "refactor_style": "保持代码可读性、遵循 ESLint 标准、保持 API 调用封装良好",
+    "add_types": true,
+    "error_handling": "所有外部 API 请求均使用 try/catch 包裹，并统一错误返回格式",
+    "comments": "必要位置添加中文注释解释复杂逻辑",
+    "suggestions_enabled": true
+  }
+}

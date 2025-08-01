@@ -1,0 +1,36 @@
+# 开发环境 Dockerfile
+FROM node:18-alpine
+
+# 安装必要的包
+RUN apk add --no-cache dumb-init
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制根目录配置
+COPY package*.json ./
+
+# 复制后端配置
+COPY backend/package*.json ./backend/
+
+# 复制前端配置
+COPY frontend/package*.json ./frontend/
+
+# 安装所有依赖
+RUN npm install
+RUN cd backend && npm install
+RUN cd frontend && npm install
+
+# 复制源代码
+COPY . .
+
+# 暴露端口
+EXPOSE 3000 3001
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# 启动开发服务器
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["npm", "run", "dev"] 

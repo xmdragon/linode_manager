@@ -1,0 +1,51 @@
+# 依赖目录
+node_modules
+*/node_modules
+
+# 构建产物
+dist
+build
+*/dist
+*/build
+
+# 日志文件
+logs
+*.log
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# Git相关
+.git
+
+# IDE相关
+.vscode
+.idea
+*.swp
+*.swo
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 测试文件
+coverage
+*.test.js
+*.spec.js
+__tests__
+
+# 文档
+README.md
+*.md
+
+# Docker相关
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 其他
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log* 
